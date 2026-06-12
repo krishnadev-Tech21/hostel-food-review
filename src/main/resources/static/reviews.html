@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Food Reviews</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="main-nav">
+    <a href="index.html"    class="nav-link">🏠 Home</a>
+    <a href="menu.html"     class="nav-link">🍽️ Menu</a>
+    <a href="reviews.html"  class="nav-link active">
+        📋 Reviews
+    </a>
+    <a href="attendance.html" class="nav-link">
+        ✅ Attendance
+    </a>
+    <a href="dashboard.html" class="nav-link">
+        📊 My Dashboard
+    </a>
+    <a href="admin.html"    class="nav-link">👑 Admin</a>
+    <a href="login.html"    class="nav-link"
+       id="navLoginBtn">🔑 Login</a>
+</nav>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-content">
+        <h1>📋 Food Reviews</h1>
+        <p>Share your honest feedback about meals</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- SUBMIT REVIEW FORM -->
+    <section class="card">
+        <h2>📝 Submit a Review</h2>
+
+        <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="studentName"
+                   placeholder="Enter your name"/>
+        </div>
+        <div class="form-group">
+            <label>Food Item</label>
+            <input type="text" id="foodItem"
+                   placeholder="e.g. Dal Rice, Roti Sabzi"/>
+        </div>
+        <div class="form-group">
+            <label>Rating</label>
+            <select id="rating">
+                <option value="">-- Select Rating --</option>
+                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                <option value="4">⭐⭐⭐⭐ Good</option>
+                <option value="3">⭐⭐⭐ Average</option>
+                <option value="2">⭐⭐ Poor</option>
+                <option value="1">⭐ Very Poor</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Comment</label>
+            <textarea id="comment" rows="4"
+                      placeholder="Write your honest feedback...">
+            </textarea>
+        </div>
+
+        <button class="btn-submit"
+                onclick="submitReview()">
+            Submit Review
+        </button>
+        <div id="message" class="message hidden"></div>
+    </section>
+
+    <!-- ALL REVIEWS -->
+    <section class="card">
+        <div class="reviews-header">
+            <h2>💬 All Reviews</h2>
+            <button class="btn-refresh"
+                    onclick="loadReviews()">
+                🔄 Refresh
+            </button>
+        </div>
+        <div id="reviewsList">
+            <p class="loading">Loading reviews...</p>
+        </div>
+    </section>
+
+</div>
+
+<script>
+
+    const REVIEW_API = "http://localhost:8080/reviews";
+
+    // Load all reviews
+    async function loadReviews() {
+
+        const reviewsList =
+            document.getElementById("reviewsList");
+
+        try {
+
+            const response =
+                await fetch(REVIEW_API);
+
+            const reviews =
+                await response.json();
+
+            if(reviews.length === 0) {
+
+                reviewsList.innerHTML =
+                    "<p>No reviews available.</p>";
+
+                return;
+            }
+
+            let html = "";
+
+            reviews.forEach(review => {
+
+                const stars =
+                    "⭐".repeat(review.rating);
+
+                html += `
+                <div style="
+                    background:white;
+                    padding:15px;
+                    margin-bottom:10px;
+                    border-radius:10px;
+                    border:1px solid #ddd;">
+
+                    <h4>
+                        🍛 ${review.foodName}
+                    </h4>
+
+                    <p>
+                        👤 ${review.studentName}
+                    </p>
+
+                    <p>${stars}</p>
+
+                    <p>
+                        ${review.comment}
+                    </p>
+                </div>
+            `;
+            });
+
+            reviewsList.innerHTML = html;
+
+        } catch(error) {
+
+            reviewsList.innerHTML =
+                "<p>❌ Error loading reviews.</p>";
+
+            console.error(error);
+        }
+    }
+
+
+    // Submit review
+    async function submitReview() {
+
+        const studentName =
+            document.getElementById(
+                "studentName"
+            ).value;
+
+        const foodName =
+            document.getElementById(
+                "foodItem"
+            ).value;
+
+        const rating =
+            document.getElementById(
+                "rating"
+            ).value;
+
+        const comment =
+            document.getElementById(
+                "comment"
+            ).value;
+
+        if(
+            !studentName ||
+            !foodName ||
+            !rating
+        ) {
+
+            alert(
+                "Please fill all fields."
+            );
+
+            return;
+        }
+
+        const review = {
+
+            studentName:
+            studentName,
+
+            foodName:
+            foodName,
+
+            rating:
+                parseInt(rating),
+
+            comment:
+            comment
+        };
+
+        try {
+
+            const response =
+                await fetch(
+                    REVIEW_API,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body:
+                            JSON.stringify(review)
+                    }
+                );
+
+            if(response.ok) {
+
+                alert(
+                    "✅ Review submitted!"
+                );
+
+                document.getElementById(
+                    "foodItem"
+                ).value = "";
+
+                document.getElementById(
+                    "rating"
+                ).value = "";
+
+                document.getElementById(
+                    "comment"
+                ).value = "";
+
+                loadReviews();
+
+            } else {
+
+                alert(
+                    "❌ Failed to submit review."
+                );
+            }
+
+        } catch(error) {
+
+            console.error(error);
+
+            alert(
+                "❌ Error submitting review."
+            );
+        }
+    }
+
+
+    // Auto load
+    window.onload = function() {
+
+        const name =
+            localStorage.getItem(
+                "studentName"
+            );
+
+        if(name) {
+
+            document.getElementById(
+                "studentName"
+            ).value = name;
+        }
+
+        loadReviews();
+    };
+
+</script>
+</body>
+</html>

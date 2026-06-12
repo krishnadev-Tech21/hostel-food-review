@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Attendance</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .meal-attendance-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .meal-attend-card {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-top: 5px solid #e1e8ed;
+            transition: transform 0.2s;
+        }
+
+        .meal-attend-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .meal-attend-card.breakfast {
+            border-top-color: #f59e0b;
+        }
+        .meal-attend-card.lunch {
+            border-top-color: #10b981;
+        }
+        .meal-attend-card.snacks {
+            border-top-color: #f43f5e;
+        }
+        .meal-attend-card.dinner {
+            border-top-color: #6366f1;
+        }
+
+        .meal-attend-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .meal-attend-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .meal-attend-time {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .attend-btn {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .attend-btn.present {
+            background: #d1fae5;
+            color:       #065f46;
+            border: 2px solid #6ee7b7;
+        }
+
+        .attend-btn.absent {
+            background: #fee2e2;
+            color:       #991b1b;
+            border: 2px solid #fca5a5;
+        }
+
+        .attend-btn.unmarked {
+            background: #f0f4f8;
+            color:       #555;
+            border: 2px solid #e1e8ed;
+        }
+
+        .attend-btn:hover {
+            opacity: 0.85;
+            transform: scale(1.02);
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .status-tag.present {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-tag.absent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-tag.unmarked {
+            background: #f0f4f8;
+            color: #888;
+        }
+
+        /* HISTORY TABLE */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .history-table td {
+            padding: 11px 15px;
+            border-bottom: 1px solid #f0f4f8;
+            font-size: 0.9rem;
+        }
+
+        .history-table tr:hover td {
+            background: #f8faff;
+        }
+
+        .badge-present {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-absent {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .not-logged-in {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .not-logged-in h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .week-stats {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(140px,1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .week-stat-box {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .week-stat-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .week-stat-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+
+
+             /* your existing CSS */
+
+             /* ===== SHARED NAVIGATION ===== */
+         .main-nav {
+             background: white;
+             ...
+         }
+
+        .nav-link {
+            ...
+        }
+
+        /* rest of the CSS from STEP 6 */
+
+
+
+
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-content">
+        <h1>✅ Meal Attendance</h1>
+        <p id="attendanceDate">Loading...</p>
+    </div>
+</header>
+
+<!-- NAV -->
+<nav style="background:white; padding:12px 20px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.08);
+            display:flex; justify-content:center;
+            gap:20px; flex-wrap:wrap;">
+    <a href="index.html"
+       style="color:#555;text-decoration:none;
+              font-weight:600;padding:8px 16px;
+              border-radius:8px;">
+        📋 Reviews
+    </a>
+    <a href="menu.html"
+       style="color:#555;text-decoration:none;
+              font-weight:600;padding:8px 16px;
+              border-radius:8px;">
+        🍽️ Menu
+    </a>
+    <a href="attendance.html"
+       style="color:#667eea;text-decoration:none;
+              font-weight:600;padding:8px 16px;
+              border-radius:8px;background:#f0f0ff;">
+        ✅ Attendance
+    </a>
+    <a href="login.html"
+       style="color:#555;text-decoration:none;
+              font-weight:600;padding:8px 16px;
+              border-radius:8px;">
+        👤 Account
+    </a>
+</nav>
+
+<div class="container">
+
+    <!-- NOT LOGGED IN MESSAGE -->
+    <div id="notLoggedIn" class="card not-logged-in"
+         style="display:none;">
+        <div style="font-size:3rem;">🔐</div>
+        <h3>Please Login First!</h3>
+        <p style="color:#888; margin-bottom:20px;">
+            You need to be logged in to mark attendance
+        </p>
+        <a href="login.html">
+            <button class="btn-submit"
+                    style="width:auto;padding:12px 30px;">
+                🔑 Go to Login
+            </button>
+        </a>
+    </div>
+
+    <!-- LOGGED IN CONTENT -->
+    <div id="attendanceContent">
+
+        <!-- TODAY'S MEALS -->
+        <div class="card">
+            <div style="display:flex;justify-content:
+                        space-between;align-items:center;
+                        margin-bottom:5px;">
+                <h2>🍽️ Mark Today's Attendance</h2>
+                <button class="btn-refresh"
+                        onclick="loadTodayAttendance()">
+                    🔄 Refresh
+                </button>
+            </div>
+            <p style="color:#888;font-size:0.9rem;
+                      margin-bottom:15px;">
+                Click a meal to toggle
+                Present ✅ / Absent ❌
+            </p>
+
+            <div class="meal-attendance-grid"
+                 id="mealAttendanceGrid">
+                <p class="loading">Loading meals...</p>
+            </div>
+
+            <div id="attendMsg"
+                 class="message hidden"
+                 style="margin-top:15px;">
+            </div>
+        </div>
+
+        <!-- WEEK SUMMARY -->
+        <div class="card">
+            <h2 style="margin-bottom:15px;">
+                📊 This Week's Summary
+            </h2>
+
+            <div class="week-stats" id="weekStats">
+                <!-- filled by JS -->
+            </div>
+        </div>
+
+        <!-- ATTENDANCE HISTORY -->
+        <div class="card">
+            <div style="display:flex;justify-content:
+                        space-between;align-items:center;
+                        margin-bottom:20px;">
+                <h2>📅 Attendance History (Last 7 Days)</h2>
+                <button class="btn-refresh"
+                        onclick="loadHistory()">
+                    🔄 Refresh
+                </button>
+            </div>
+
+            <div id="historyContainer">
+                <p class="loading">Loading history...</p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const ATTEND_API = "http://localhost:8080/api/attendance";
+
+    const MEALS = [
+        {
+            type: "BREAKFAST",
+            emoji: "🌅",
+            label: "Breakfast",
+            time: "7:00 - 9:00 AM",
+            color: "breakfast"
+        },
+        {
+            type: "LUNCH",
+            emoji: "☀️",
+            label: "Lunch",
+            time: "12:00 - 2:00 PM",
+            color: "lunch"
+        },
+        {
+            type: "SNACKS",
+            emoji: "🫖",
+            label: "Snacks",
+            time: "4:00 - 5:30 PM",
+            color: "snacks"
+        },
+        {
+            type: "DINNER",
+            emoji: "🌙",
+            label: "Dinner",
+            time: "7:30 - 9:30 PM",
+            color: "dinner"
+        }
+    ];
+
+    let studentId   = null;
+    let studentName = null;
+
+    // ================================================
+    // INITIALIZE
+    // ================================================
+    window.onload = function() {
+
+        // Show today's date
+        const today = new Date();
+        document.getElementById("attendanceDate")
+            .textContent = today.toLocaleDateString(
+            "en-IN", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }
+        );
+
+        // Check login
+        studentId   = localStorage.getItem("studentId");
+        studentName = localStorage.getItem("studentName");
+
+        if (!studentId) {
+            document.getElementById("notLoggedIn")
+                .style.display = "block";
+            document.getElementById("attendanceContent")
+                .style.display = "none";
+            return;
+        }
+
+        // Load everything
+        loadTodayAttendance();
+        loadHistory();
+    };
+
+    // ================================================
+    // LOAD TODAY'S MEAL CARDS WITH ATTENDANCE STATUS
+    // ================================================
+    async function loadTodayAttendance() {
+
+        const grid = document.getElementById(
+            "mealAttendanceGrid"
+        );
+        grid.innerHTML = '<p class="loading">Loading...</p>';
+
+        try {
+            // Get student's today attendance
+            const res = await fetch(
+                `${ATTEND_API}/student/${studentId}/today`
+            );
+            const records = await res.json();
+
+            // Map: mealType → status
+            const statusMap = {};
+            records.forEach(r => {
+                statusMap[r.mealType] = r.status;
+            });
+
+            // Build meal cards
+            let html = "";
+
+            MEALS.forEach(meal => {
+
+                const status = statusMap[meal.type] || "UNMARKED";
+
+                const tagClass =
+                    status === "PRESENT"  ? "present"  :
+                        status === "ABSENT"   ? "absent"   :
+                            "unmarked";
+
+                const tagText =
+                    status === "PRESENT"  ? "✅ Present"  :
+                        status === "ABSENT"   ? "❌ Absent"   :
+                            "⬜ Not Marked";
+
+                const btnText =
+                    status === "PRESENT"
+                        ? "✅ Marked Present — Click to change"
+                        : status === "ABSENT"
+                            ? "❌ Marked Absent — Click to change"
+                            : "Mark Attendance";
+
+                const btnClass =
+                    status === "PRESENT"  ? "present"  :
+                        status === "ABSENT"   ? "absent"   :
+                            "unmarked";
+
+                html += `
+                <div class="meal-attend-card ${meal.color}">
+                    <div class="meal-attend-emoji">
+                        ${meal.emoji}
+                    </div>
+                    <div class="meal-attend-name">
+                        ${meal.label}
+                    </div>
+                    <div class="meal-attend-time">
+                        🕐 ${meal.time}
+                    </div>
+                    <div class="status-tag ${tagClass}">
+                        ${tagText}
+                    </div>
+                    <button
+                        class="attend-btn ${btnClass}"
+                        id="btn-${meal.type}"
+                        onclick="toggleAttendance(
+                            '${meal.type}',
+                            '${status}'
+                        )">
+                        ${btnText}
+                    </button>
+                </div>
+            `;
+            });
+
+            grid.innerHTML = html;
+            loadWeekSummary();
+
+        } catch(e) {
+            grid.innerHTML =
+                '<p class="loading">❌ Error loading. ' +
+                'Is server running?</p>';
+        }
+    }
+
+    // ================================================
+    // TOGGLE ATTENDANCE (PRESENT ↔ ABSENT)
+    // ================================================
+    async function toggleAttendance(mealType, currentStatus) {
+
+        // Determine new status
+        const newStatus =
+            currentStatus === "PRESENT" ? "ABSENT" :
+                "PRESENT";
+
+        const today = new Date().toISOString().split("T")[0];
+
+        try {
+            const res = await fetch(`${ATTEND_API}/mark`, {
+                method:  "POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify({
+                    studentId:   parseInt(studentId),
+                    studentName: studentName,
+                    mealType:    mealType,
+                    mealDate:    today,
+                    status:      newStatus
+                })
+            });
+
+            if (res.status === 201) {
+                const emoji =
+                    newStatus === "PRESENT" ? "✅" : "❌";
+                showAttendMsg(
+                    `${emoji} ${mealType} marked as ${newStatus}!`,
+                    newStatus === "PRESENT" ? "success" : "error"
+                );
+                loadTodayAttendance(); // refresh cards
+                loadHistory();         // refresh history
+            }
+
+        } catch(e) {
+            showAttendMsg(
+                "❌ Error. Is server running?", "error"
+            );
+        }
+    }
+
+    // ================================================
+    // LOAD WEEK SUMMARY STATS
+    // ================================================
+    async function loadWeekSummary() {
+        try {
+            const res     = await fetch(
+                `${ATTEND_API}/student/${studentId}/week`
+            );
+            const records = await res.json();
+
+            const present = records.filter(
+                r => r.status === "PRESENT"
+            ).length;
+
+            const absent = records.filter(
+                r => r.status === "ABSENT"
+            ).length;
+
+            const total  = records.length;
+            const pct    = total > 0
+                ? Math.round((present / total) * 100)
+                : 0;
+
+            document.getElementById("weekStats").innerHTML = `
+            <div class="week-stat-box">
+                <div class="week-stat-num"
+                     style="color:#10b981;">
+                    ${present}
+                </div>
+                <div class="week-stat-label">
+                    ✅ Present This Week
+                </div>
+            </div>
+            <div class="week-stat-box">
+                <div class="week-stat-num"
+                     style="color:#ef4444;">
+                    ${absent}
+                </div>
+                <div class="week-stat-label">
+                    ❌ Absent This Week
+                </div>
+            </div>
+            <div class="week-stat-box">
+                <div class="week-stat-num">${total}</div>
+                <div class="week-stat-label">
+                    📊 Total Marked
+                </div>
+            </div>
+            <div class="week-stat-box">
+                <div class="week-stat-num"
+                     style="color:#667eea;">
+                    ${pct}%
+                </div>
+                <div class="week-stat-label">
+                    🎯 Attendance Rate
+                </div>
+            </div>
+        `;
+
+        } catch(e) {
+            console.error("Week summary error:", e);
+        }
+    }
+
+    // ================================================
+    // LOAD ATTENDANCE HISTORY TABLE
+    // ================================================
+    async function loadHistory() {
+        const container =
+            document.getElementById("historyContainer");
+
+        try {
+            const res     = await fetch(
+                `${ATTEND_API}/student/${studentId}/week`
+            );
+            const records = await res.json();
+
+            if (records.length === 0) {
+                container.innerHTML =
+                    '<p class="loading">No attendance ' +
+                    'records yet. Mark your first meal!</p>';
+                return;
+            }
+
+            // Sort by date descending (newest first)
+            records.sort((a, b) =>
+                new Date(b.mealDate) - new Date(a.mealDate)
+            );
+
+            let html = `
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Meal</th>
+                        <th>Status</th>
+                        <th>Marked At</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+            records.forEach(r => {
+
+                const markedTime = r.markedAt
+                    ? r.markedAt.split("T")[1]
+                        .substring(0,5)
+                    : "-";
+
+                const badgeClass =
+                    r.status === "PRESENT"
+                        ? "badge-present"
+                        : "badge-absent";
+
+                const statusIcon =
+                    r.status === "PRESENT"
+                        ? "✅ Present"
+                        : "❌ Absent";
+
+                html += `
+                <tr>
+                    <td><strong>${r.mealDate}</strong></td>
+                    <td>${r.mealType}</td>
+                    <td>
+                        <span class="${badgeClass}">
+                            ${statusIcon}
+                        </span>
+                    </td>
+                    <td>${markedTime}</td>
+                </tr>
+            `;
+            });
+
+            html += "</tbody></table>";
+            container.innerHTML = html;
+
+        } catch(e) {
+            container.innerHTML =
+                '<p class="loading">❌ Error loading history.</p>';
+        }
+    }
+
+    // ================================================
+    // HELPER — Show message
+    // ================================================
+    function showAttendMsg(text, type) {
+        const el = document.getElementById("attendMsg");
+        el.textContent = text;
+        el.className   = `message ${type}`;
+        setTimeout(() => {
+            el.className = "message hidden";
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1.0">
+
+    <title>Student Login</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .auth-container {
+            max-width: 420px;
+            margin: 50px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow:
+                    0 2px 12px
+                    rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            color: gray;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #eee;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            border-radius: 8px;
+        }
+
+        .auth-tab.active {
+            background: white;
+            font-weight: bold;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button.submit-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            background: #4f46e5;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <h2>🍽 Hostel Food System</h2>
+    <p>Login or Register</p>
+
+    <div class="auth-tabs">
+
+        <button class="auth-tab active"
+                id="loginTab"
+                onclick="showTab('login')">
+
+            Login
+        </button>
+
+        <button class="auth-tab"
+                id="registerTab"
+                onclick="showTab('register')">
+
+            Register
+        </button>
+
+    </div>
+
+    <!-- LOGIN -->
+
+    <div class="auth-form active"
+         id="loginForm">
+
+        <label>Email</label>
+
+        <input type="email"
+               id="loginEmail"
+               placeholder="Enter email">
+
+        <label>Password</label>
+
+        <input type="password"
+               id="loginPassword"
+               placeholder="Enter password">
+
+        <button class="submit-btn"
+                onclick="handleLogin()">
+
+            Login
+        </button>
+
+        <div id="loginMessage"
+             class="message hidden">
+        </div>
+
+    </div>
+
+    <!-- REGISTER -->
+
+    <div class="auth-form"
+         id="registerForm">
+
+        <label>Student Name</label>
+
+        <input type="text"
+               id="regName"
+               placeholder="Enter full name">
+
+        <label>Email</label>
+
+        <input type="email"
+               id="regEmail"
+               placeholder="Enter email">
+
+        <label>Password</label>
+
+        <input type="password"
+               id="regPassword"
+               placeholder="Enter password">
+
+        <label>Room Number</label>
+
+        <input type="text"
+               id="regRoom"
+               placeholder="A-101">
+
+        <label>Phone</label>
+
+        <input type="text"
+               id="regPhone"
+               placeholder="9876543210">
+
+        <button class="submit-btn"
+                onclick="handleRegister()">
+
+            Register
+        </button>
+
+        <div id="registerMessage"
+             class="message hidden">
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const API =
+        "http://localhost:8080/students";
+
+    function showTab(tab) {
+
+        document
+            .getElementById("loginForm")
+            .classList.remove("active");
+
+        document
+            .getElementById("registerForm")
+            .classList.remove("active");
+
+        document
+            .getElementById("loginTab")
+            .classList.remove("active");
+
+        document
+            .getElementById("registerTab")
+            .classList.remove("active");
+
+        document
+            .getElementById(tab + "Form")
+            .classList.add("active");
+
+        document
+            .getElementById(tab + "Tab")
+            .classList.add("active");
+    }
+
+    async function handleRegister() {
+
+        const studentName =
+            document
+                .getElementById("regName")
+                .value.trim();
+
+        const email =
+            document
+                .getElementById("regEmail")
+                .value.trim();
+
+        const password =
+            document
+                .getElementById("regPassword")
+                .value;
+
+        const roomNumber =
+            document
+                .getElementById("regRoom")
+                .value.trim();
+
+        const phone =
+            document
+                .getElementById("regPhone")
+                .value.trim();
+
+        const response =
+            await fetch(
+                `${API}/register`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        studentName,
+                        email,
+                        password,
+                        roomNumber,
+                        phone
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        showMessage(
+            "registerMessage",
+            data.message,
+            data.success
+        );
+    }
+
+    async function handleLogin() {
+
+        const email =
+            document
+                .getElementById("loginEmail")
+                .value.trim();
+
+        const password =
+            document
+                .getElementById("loginPassword")
+                .value;
+
+        const response =
+            await fetch(
+                `${API}/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        showMessage(
+            "loginMessage",
+            data.message,
+            data.success
+        );
+
+        if (data.success) {
+
+            localStorage.setItem(
+                "studentId",
+                data.studentId
+            );
+
+            localStorage.setItem(
+                "studentName",
+                data.studentName
+            );
+
+            localStorage.setItem(
+                "studentEmail",
+                data.email
+            );
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "index.html";
+
+            }, 1000);
+        }
+    }
+
+    function showMessage(
+        id,
+        message,
+        success
+    ) {
+
+        const element =
+            document.getElementById(id);
+
+        element.innerText =
+            message;
+
+        element.className =
+            success
+                ? "message success"
+                : "message error";
+
+        setTimeout(() => {
+
+            element.className =
+                "message hidden";
+
+        }, 4000);
+    }
+
+</script>
+
+</body>
+</html>

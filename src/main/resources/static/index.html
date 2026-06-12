@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Hostel Food Review System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="main-nav" id="mainNav">
+    <a href="index.html"  class="nav-link active">
+        🏠 Home
+    </a>
+    <a href="menu.html"   class="nav-link">
+        🍽️ Menu
+    </a>
+    <a href="index.html" class="nav-link">
+        📋 Reviews
+    </a>
+    <a href="attendance.html" class="nav-link">
+        ✅ Attendance
+    </a>
+    <a href="dashboard.html" class="nav-link">
+        📊 My Dashboard
+    </a>
+    <a href="admin.html"  class="nav-link">
+        👑 Admin
+    </a>
+    <span class="nav-user" id="navUser"
+          style="display:none;">
+    </span>
+    <a href="login.html"  class="nav-link"
+       id="navLoginBtn">
+        🔑 Login
+    </a>
+    <button onclick="logout()"
+            id="navLogoutBtn"
+            style="display:none;"
+            class="nav-link"
+            style="border:none;cursor:pointer;
+                   background:#fee2e2;color:#dc2626;">
+        🚪 Logout
+    </button>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+    <h1>🍽️ Hostel Food Review System</h1>
+    <p>
+        Rate your meals • Track attendance •
+        View daily menu • Share feedback
+    </p>
+    <div class="hero-buttons">
+        <a href="menu.html" class="btn-hero white">
+            🍛 View Today's Menu
+        </a>
+        <a href="index.html" class="btn-hero outline">
+            📝 Write a Review
+        </a>
+    </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="container">
+
+    <!-- QUICK STATS -->
+    <div class="card">
+        <h2 style="margin-bottom:20px;">
+            📊 System Overview
+        </h2>
+        <div style="display:grid;
+                    grid-template-columns:
+                    repeat(auto-fit,minmax(150px,1fr));
+                    gap:15px;">
+            <div style="text-align:center;
+                        background:#f0f0ff;
+                        border-radius:12px;
+                        padding:20px;">
+                <div style="font-size:2rem;
+                            font-weight:800;
+                            color:#667eea;"
+                     id="totalReviewsStat">-</div>
+                <div style="font-size:0.85rem;
+                            color:#888;margin-top:4px;">
+                    Total Reviews
+                </div>
+            </div>
+            <div style="text-align:center;
+                        background:#f0fdf4;
+                        border-radius:12px;
+                        padding:20px;">
+                <div style="font-size:2rem;
+                            font-weight:800;
+                            color:#10b981;"
+                     id="avgRatingStat">-</div>
+                <div style="font-size:0.85rem;
+                            color:#888;margin-top:4px;">
+                    Average Rating
+                </div>
+            </div>
+            <div style="text-align:center;
+                        background:#fff7ed;
+                        border-radius:12px;
+                        padding:20px;">
+                <div style="font-size:2rem;
+                            font-weight:800;
+                            color:#f59e0b;"
+                     id="menuTodayStat">-</div>
+                <div style="font-size:0.85rem;
+                            color:#888;margin-top:4px;">
+                    Today's Meals
+                </div>
+            </div>
+            <div style="text-align:center;
+                        background:#fdf2f8;
+                        border-radius:12px;
+                        padding:20px;">
+                <div style="font-size:2rem;
+                            font-weight:800;
+                            color:#ec4899;"
+                     id="studentsStat">-</div>
+                <div style="font-size:0.85rem;
+                            color:#888;margin-top:4px;">
+                    Students
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEATURES GRID -->
+    <div class="card">
+        <h2 style="margin-bottom:20px;">
+            🚀 Quick Access
+        </h2>
+        <div class="features-grid">
+            <a href="menu.html" class="feature-card">
+                <div class="feature-icon">🍽️</div>
+                <div class="feature-title">Today's Menu</div>
+                <div class="feature-desc">
+                    See what's being served for
+                    Breakfast, Lunch, Snacks & Dinner
+                </div>
+            </a>
+            <a href="index.html" class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <div class="feature-title">
+                    Rate Your Food
+                </div>
+                <div class="feature-desc">
+                    Submit honest reviews and ratings
+                    for each meal
+                </div>
+            </a>
+            <a href="attendance.html" class="feature-card">
+                <div class="feature-icon">✅</div>
+                <div class="feature-title">
+                    Mark Attendance
+                </div>
+                <div class="feature-desc">
+                    Track which meals you attend
+                    every day
+                </div>
+            </a>
+            <a href="dashboard.html" class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">
+                    My Dashboard
+                </div>
+                <div class="feature-desc">
+                    View your personal stats,
+                    reviews and attendance
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- TOP RATED FOODS -->
+    <div class="card">
+        <h2 style="margin-bottom:20px;">
+            🏆 Top Rated Food Items
+        </h2>
+        <div id="topRatedContainer">
+            <p class="loading">Loading ratings...</p>
+        </div>
+    </div>
+
+    <!-- RECENT REVIEWS -->
+    <div class="card">
+        <div style="display:flex;justify-content:
+                    space-between;align-items:center;
+                    margin-bottom:20px;">
+            <h2>💬 Recent Reviews</h2>
+            <a href="index.html"
+               style="color:#667eea;font-size:0.9rem;
+                      font-weight:600;
+                      text-decoration:none;">
+                View All →
+            </a>
+        </div>
+        <div id="recentReviews">
+            <p class="loading">Loading reviews...</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const API = "http://localhost:8080";
+
+    // ================================================
+    // NAVIGATION - Check login status
+    // ================================================
+    function checkNav() {
+        const name = localStorage.getItem("studentName");
+        if (name) {
+            document.getElementById("navUser")
+                .textContent = "👤 " + name;
+            document.getElementById("navUser")
+                .style.display = "inline";
+            document.getElementById("navLoginBtn")
+                .style.display = "none";
+            document.getElementById("navLogoutBtn")
+                .style.display = "inline";
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.reload();
+    }
+
+    // ================================================
+    // LOAD OVERVIEW STATS
+    // ================================================
+    async function loadStats() {
+        try {
+            // Get admin dashboard stats
+            const res  = await fetch(
+                `${API}/admin/dashboard`
+            );
+            const data = await res.json();
+
+            document.getElementById("totalReviewsStat")
+                .textContent = data.totalReviews;
+            document.getElementById("avgRatingStat")
+                .textContent = data.averageRating + " ⭐";
+            document.getElementById("menuTodayStat")
+                .textContent = data.todayMenuCount;
+            document.getElementById("studentsStat")
+                .textContent = data.totalStudents;
+
+        } catch(e) {
+            console.error("Stats error:", e);
+        }
+    }
+
+    // ================================================
+    // LOAD TOP RATED FOODS
+    // ================================================
+    async function loadTopRated() {
+        const container =
+            document.getElementById("topRatedContainer");
+
+        try {
+            const res   = await fetch(
+                `${API}/reviews/top-rated`
+            );
+            const foods = await res.json();
+
+            if (foods.length === 0) {
+                container.innerHTML =
+                    '<p class="loading">' +
+                    'No ratings yet. Be the first!</p>';
+                return;
+            }
+
+            let html = "";
+
+            foods.slice(0, 6).forEach((food, index) => {
+
+                const barWidth =
+                    (food.averageRating / 5) * 100;
+                const medal =
+                    index === 0 ? "🥇" :
+                        index === 1 ? "🥈" :
+                            index === 2 ? "🥉" : "🍽️";
+
+                html += `
+                <div class="rating-row">
+                    <div class="rating-food-name">
+                        ${medal} ${food.foodItem}
+                    </div>
+                    <div class="rating-bar-container">
+                        <div class="rating-bar-fill"
+                             style="width:${barWidth}%">
+                        </div>
+                    </div>
+                    <div class="rating-count">
+                        ⭐ ${food.averageRating}
+                        <br>
+                        <span style="font-size:0.75rem;">
+                            ${food.reviewCount} reviews
+                        </span>
+                    </div>
+                </div>
+            `;
+            });
+
+            container.innerHTML = html;
+
+        } catch(e) {
+            container.innerHTML =
+                '<p class="loading">❌ Error loading ratings.</p>';
+        }
+    }
+
+    // ================================================
+    // LOAD RECENT REVIEWS
+    // ================================================
+    async function loadRecentReviews() {
+        const container =
+            document.getElementById("recentReviews");
+
+        try {
+            const res     = await fetch(
+                `${API}/reviews/recent`
+            );
+            const reviews = await res.json();
+
+            if (reviews.length === 0) {
+                container.innerHTML =
+                    '<p class="loading">No reviews yet!</p>';
+                return;
+            }
+
+            let html = "";
+
+            reviews.forEach(r => {
+                const stars = "⭐".repeat(r.rating);
+                html += `
+                <div class="review-card">
+                    <div class="review-top">
+                        <span class="review-student">
+                            👤 ${r.studentName}
+                        </span>
+                        <span class="review-food">
+                            🍛 ${r.foodName}
+                        </span>
+                    </div>
+                    <div class="review-stars">
+                        ${stars}
+                    </div>
+                    <div class="review-comment">
+                        "${r.comment}"
+                    </div>
+                </div>
+            `;
+            });
+
+            container.innerHTML = html;
+
+        } catch(e) {
+            container.innerHTML =
+                '<p class="loading">❌ Error loading reviews.</p>';
+        }
+    }
+
+    // ================================================
+    // INITIALIZE
+    // ================================================
+    window.onload = function() {
+        checkNav();
+        loadStats();
+        loadTopRated();
+        loadRecentReviews();
+    };
+</script>
+
+</body>
+</html>

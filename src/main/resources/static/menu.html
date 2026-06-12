@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width,
+          initial-scale=1.0">
+
+    <title>Today's Food Menu</title>
+
+    <style>
+
+        *{
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+        }
+
+        body{
+            font-family:Arial,sans-serif;
+            background:#f4f6f9;
+        }
+
+        header{
+            background:#4f46e5;
+            color:white;
+            text-align:center;
+            padding:30px;
+        }
+
+        .date-display{
+            opacity:0.9;
+            margin-top:8px;
+            font-size:1rem;
+        }
+
+        .container{
+            width:90%;
+            max-width:1200px;
+            margin:30px auto;
+        }
+
+        .card{
+            background:white;
+            border-radius:15px;
+            padding:20px;
+            box-shadow:
+                    0 4px 15px
+                    rgba(0,0,0,0.08);
+            margin-bottom:20px;
+        }
+
+        .week-nav{
+            display:flex;
+            justify-content:center;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .week-btn{
+            padding:10px 15px;
+            border:2px solid #ddd;
+            background:white;
+            border-radius:10px;
+            cursor:pointer;
+            transition:0.2s;
+        }
+
+        .week-btn:hover,
+        .week-btn.active{
+            background:#4f46e5;
+            color:white;
+            border-color:#4f46e5;
+        }
+
+        .meal-grid{
+            display:grid;
+            grid-template-columns:
+                    repeat(
+                            auto-fit,
+                            minmax(260px,1fr)
+                    );
+            gap:20px;
+        }
+
+        .meal-card{
+            background:white;
+            border-radius:18px;
+            padding:25px;
+            box-shadow:
+                    0 4px 20px
+                    rgba(0,0,0,0.08);
+            border-top:5px solid;
+        }
+
+        .breakfast{
+            border-color:#f59e0b;
+        }
+
+        .lunch{
+            border-color:#10b981;
+        }
+
+        .snacks{
+            border-color:#f43f5e;
+        }
+
+        .dinner{
+            border-color:#6366f1;
+        }
+
+        .special{
+            background:#fff0f8;
+        }
+
+        .meal-emoji{
+            font-size:2rem;
+            margin-bottom:10px;
+        }
+
+        .meal-title{
+            font-size:1.2rem;
+            font-weight:bold;
+            margin-bottom:10px;
+        }
+
+        .meal-desc{
+            color:#777;
+            margin-bottom:15px;
+        }
+
+        .meal-items{
+            list-style:none;
+        }
+
+        .meal-items li{
+            padding:8px 0;
+            border-bottom:1px solid #eee;
+        }
+
+        .meal-items li:last-child{
+            border-bottom:none;
+        }
+
+        .special-badge{
+            background:#ec4899;
+            color:white;
+            font-size:0.75rem;
+            padding:4px 8px;
+            border-radius:20px;
+            margin-left:8px;
+        }
+
+        .loading,
+        .no-menu{
+            text-align:center;
+            padding:40px;
+            color:#777;
+        }
+
+        .nav-links{
+            text-align:center;
+            margin-top:25px;
+        }
+
+        .nav-links a{
+            margin:0 15px;
+            text-decoration:none;
+            color:#4f46e5;
+            font-weight:bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>
+        🍽 Today's Food Menu
+    </h1>
+
+    <p class="date-display"
+       id="todayDate">
+    </p>
+
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2 style="margin-bottom:20px;">
+            📅 Select Day
+        </h2>
+
+        <div class="week-nav"
+             id="weekNav">
+        </div>
+
+    </div>
+
+    <div id="menuContainer">
+
+        <p class="loading">
+            ⏳ Loading today's menu...
+        </p>
+
+    </div>
+
+    <div class="nav-links">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="attendance.html">
+            Attendance
+        </a>
+
+        <a href="login.html">
+            Login
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+
+    const MENU_API =
+        "http://localhost:8080/menu";
+
+    const MEAL_CONFIG = {
+
+        BREAKFAST:{
+            emoji:"🌅",
+            color:"breakfast",
+            time:"7:00 AM - 9:00 AM"
+        },
+
+        LUNCH:{
+            emoji:"☀️",
+            color:"lunch",
+            time:"12:00 PM - 2:00 PM"
+        },
+
+        SNACKS:{
+            emoji:"🫖",
+            color:"snacks",
+            time:"4:00 PM - 5:30 PM"
+        },
+
+        DINNER:{
+            emoji:"🌙",
+            color:"dinner",
+            time:"7:30 PM - 9:30 PM"
+        }
+    };
+
+    function showDate(){
+
+        const today =
+            new Date();
+
+        document
+            .getElementById(
+                "todayDate"
+            )
+            .innerText =
+            today.toLocaleDateString(
+                "en-IN",
+                {
+                    weekday:"long",
+                    year:"numeric",
+                    month:"long",
+                    day:"numeric"
+                }
+            );
+    }
+
+    function buildWeekNav(){
+
+        const nav =
+            document
+                .getElementById(
+                    "weekNav"
+                );
+
+        const today =
+            new Date();
+
+        let html = "";
+
+        for(let i=0;i<7;i++){
+
+            const date =
+                new Date(today);
+
+            date.setDate(
+                today.getDate()+i
+            );
+
+            const dateStr =
+                date
+                    .toISOString()
+                    .split("T")[0];
+
+            const label =
+                i===0
+                    ? "Today"
+                    : i===1
+                        ? "Tomorrow"
+                        : date.toLocaleDateString(
+                            "en-IN",
+                            {
+                                weekday:"short"
+                            }
+                        );
+
+            html += `
+                <button
+                    class="week-btn
+                    ${i===0
+                ?"active":""
+            }"
+
+                    onclick="
+                    loadMenuByDate(
+                    '${dateStr}',
+                    this
+                    )">
+
+                    ${label}
+
+                </button>
+            `;
+        }
+
+        nav.innerHTML =
+            html;
+    }
+
+    async function loadTodayMenu(){
+
+        try{
+
+            const response =
+                await fetch(
+                    `${MENU_API}/today`
+                );
+
+            const data =
+                await response.json();
+
+            displayMenu(data);
+
+        }catch(error){
+
+            showError();
+        }
+    }
+
+    async function loadMenuByDate(
+        dateStr,
+        btn
+    ){
+
+        document
+            .querySelectorAll(
+                ".week-btn"
+            )
+            .forEach(
+                button =>
+                    button
+                        .classList
+                        .remove(
+                            "active"
+                        )
+            );
+
+        btn.classList
+            .add("active");
+
+        try{
+
+            const response =
+                await fetch(
+                    `${MENU_API}/date/${dateStr}`
+                );
+
+            const data =
+                await response.json();
+
+            displayMenu(data);
+
+        }catch(error){
+
+            showError();
+        }
+    }
+
+    function displayMenu(
+        menuItems
+    ){
+
+        const container =
+            document
+                .getElementById(
+                    "menuContainer"
+                );
+
+        if(
+            menuItems.length===0
+        ){
+
+            container.innerHTML=
+                `
+                <div class="card no-menu">
+                    <h2>
+                        No Menu Available
+                    </h2>
+
+                    <p>
+                        Menu not added.
+                    </p>
+                </div>
+                `;
+
+            return;
+        }
+
+        const order =
+            [
+                "BREAKFAST",
+                "LUNCH",
+                "SNACKS",
+                "DINNER"
+            ];
+
+        menuItems.sort(
+            (a,b)=>
+
+                order.indexOf(
+                    a.mealType
+                )
+                -
+                order.indexOf(
+                    b.mealType
+                )
+        );
+
+        let html =
+            `
+            <div
+            class="meal-grid">
+            `;
+
+        menuItems.forEach(
+            meal=>{
+
+                const config =
+                    MEAL_CONFIG[
+                        meal.mealType
+                        ];
+
+                const items =
+                    meal.items
+                        .split(",")
+
+                        .map(item=>
+                            `
+                    <li>
+                        🔸
+                        ${item.trim()}
+                    </li>
+                    `
+                        )
+                        .join("");
+
+                html += `
+                <div
+                class="
+                meal-card
+                ${config.color}
+                ${meal.special
+                    ?"special":""
+                }">
+
+                    <div
+                    class="meal-emoji">
+                        ${config.emoji}
+                    </div>
+
+                    <div
+                    class="meal-title">
+
+                        ${meal.mealType}
+
+                        ${
+                    meal.special
+                        ?
+                        `<span class=
+                        "special-badge">
+                        ⭐ Special
+                        </span>`
+                        :
+                        ""
+                }
+
+                    </div>
+
+                    <div
+                    class="meal-desc">
+
+                        🕐
+                        ${config.time}
+
+                    </div>
+
+                    <ul
+                    class=
+                    "meal-items">
+
+                        ${items}
+
+                    </ul>
+
+                </div>
+            `;
+            });
+
+        html += "</div>";
+
+        container.innerHTML =
+            html;
+    }
+
+    function showError(){
+
+        document
+            .getElementById(
+                "menuContainer"
+            )
+            .innerHTML =
+            `
+            <div class=
+            "card no-menu">
+
+                <h2>
+                Could not load menu
+                </h2>
+
+            </div>
+            `;
+    }
+
+    window.onload =
+        function(){
+
+            const studentId =
+                localStorage.getItem(
+                    "studentId"
+                );
+
+            if(!studentId){
+
+                alert(
+                    "Please login first!"
+                );
+
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+            showDate();
+
+            buildWeekNav();
+
+            loadTodayMenu();
+        };
+
+</script>
+
+</body>
+</html>

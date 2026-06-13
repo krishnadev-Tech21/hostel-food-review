@@ -540,8 +540,8 @@
     // ================================================
     // API URLS
     // ================================================
-    const ADMIN_API   = "http://localhost:8080/admin";
-    const MENU_API = "http://localhost:8080/menu";
+    const ADMIN_API   =  "https://hostel-food-review-production.up.railway.app/admin";
+    const MENU_API = "https://hostel-food-review-production.up.railway.app/menu";
 
     // ================================================
     // ADMIN LOGIN
@@ -635,7 +635,7 @@
             try {
 
                 const res = await fetch(
-                    "http://localhost:8080/api/attendance/summary/today"
+                    "https://hostel-food-review-production.up.railway.app/api/attendance/summary/today"
                 );
 
                 const summaries = await res.json();

@@ -42,7 +42,7 @@ target/
 *.iws
 
 # Environment files
-application-prod.properties
+
 .env
 
 # OS files

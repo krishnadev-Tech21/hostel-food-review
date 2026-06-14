@@ -14,19 +14,19 @@
     <a href="index.html"  class="nav-link active">
         🏠 Home
     </a>
-    <a href="menu.html"   class="nav-link">
+    <a href="#" onclick="checkLogin('menu.html')" class="nav-link">
         🍽️ Menu
     </a>
-    <a href="reviews.html" class="nav-link">
+    <a href="#" onclick="checkLogin('reviews.html')" class="nav-link">
         📋 Reviews
     </a>
-    <a href="attendance.html" class="nav-link">
+    <a href="#" onclick="checkLogin('attendance.html')" class="nav-link">
         ✅ Attendance
     </a>
-    <a href="dashboard.html" class="nav-link">
+    <a href="#" onclick="checkLogin('dashboard.html')" class="nav-link">
         📊 My Dashboard
     </a>
-    <a href="admin.html"  class="nav-link">
+    <a href="#" onclick="checkLogin('admin.html')" class="nav-link">
         👑 Admin
     </a>
     <span class="nav-user" id="navUser"
@@ -136,7 +136,7 @@
             🚀 Quick Access
         </h2>
         <div class="features-grid">
-            <a href="menu.html" class="feature-card">
+            <a href="#" onclick="checkLogin('menu.html')" class="feature-card">
                 <div class="feature-icon">🍽️</div>
                 <div class="feature-title">Today's Menu</div>
                 <div class="feature-desc">
@@ -144,7 +144,7 @@
                     Breakfast, Lunch, Snacks & Dinner
                 </div>
             </a>
-            <a href="reviews.html" class="feature-card">
+            <a href="#" onclick="checkLogin('reviews.html')" class="feature-card">
                 <div class="feature-icon">⭐</div>
                 <div class="feature-title">
                     Rate Your Food
@@ -154,7 +154,7 @@
                     for each meal
                 </div>
             </a>
-            <a href="attendance.html" class="feature-card">
+            <a href="#" onclick="checkLogin('attendance.html')" class="feature-card">
                 <div class="feature-icon">✅</div>
                 <div class="feature-title">
                     Mark Attendance
@@ -164,7 +164,7 @@
                     every day
                 </div>
             </a>
-            <a href="dashboard.html" class="feature-card">
+            <a href="#" onclick="checkLogin('dashboard.html')" class="feature-card">
                 <div class="feature-icon">📊</div>
                 <div class="feature-title">
                     My Dashboard
@@ -377,6 +377,23 @@
         loadTopRated();
         loadRecentReviews();
     };
+
+    function checkLogin(page) {
+
+        const studentId =
+            localStorage.getItem("studentId");
+
+        if (!studentId) {
+
+            alert("Please login first");
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+        window.location.href = page;
+    }
 </script>
 
 </body>

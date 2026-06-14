@@ -252,7 +252,7 @@
               border-radius:8px;background:#f0f0ff;">
         ✅ Attendance
     </a>
-    <a href="login.html"
+    <a href="dashboard.html"
        style="color:#555;text-decoration:none;
               font-weight:600;padding:8px 16px;
               border-radius:8px;">
@@ -342,6 +342,12 @@
 </div>
 
 <script>
+    const studentId = localStorage.getItem("studentId");
+
+    if (!studentId) {
+        alert("Please login first");
+        window.location.href = "login.html";
+    }
     const ATTEND_API = "https://hostel-food-review-production.up.railway.app/api/attendance";
 
     const MEALS = [

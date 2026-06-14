@@ -93,7 +93,12 @@
 </div>
 
 <script>
+    const studentId = localStorage.getItem("studentId");
 
+    if (!studentId) {
+        alert("Please login first");
+        window.location.href = "login.html";
+    }
     const REVIEW_API = "https://hostel-food-review-production.up.railway.app/reviews";
 
     // Load all reviews
